@@ -122,6 +122,12 @@ pipeline {
                                 echo "🛠 Running Laravel setup inside container..."
                                 sudo docker exec -i library_app bash -c "
                                     cd /var/www/html &&
+                                    echo '⏳ Waiting for database connection...' &&
+                                    until php -r 'new mysqli(getenv(\"DB_HOST\"), getenv(\"DB_USERNAME\"), getenv(\"DB_PASSWORD\"));' 2>/dev/null; do
+                                        echo '🕒 MySQL not ready yet... retrying in 5s';
+                                        sleep 5;
+                                    done &&
+                                    echo '✅ Database is ready! Running migrations...' &&
                                     php artisan migrate --force &&
                                     php artisan config:clear &&
                                     php artisan cache:clear &&
