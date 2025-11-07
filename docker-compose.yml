@@ -18,7 +18,7 @@ services:
       - ./storage:/var/www/html/storage
       - ./bootstrap/cache:/var/www/html/bootstrap/cache
 
-    nginx:
+  nginx:
       image: nginx:stable-alpine
       container_name: library_nginx
       restart: always
@@ -31,8 +31,6 @@ services:
         - ./storage:/var/www/html/storage
         - ./bootstrap/cache:/var/www/html/bootstrap/cache
         - /var/www/html/public:/var/www/html/public   # 👈 ADD THIS LINE
-
-
   node:
     image: node:20-alpine
     container_name: library_node
