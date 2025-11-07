@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        GIT_REPO_URL = "https://github.com/Sothi805/library-app.git"
-        IMAGE_NAME = "vethsothi/library-app"
+        GIT_REPO_URL      = "https://github.com/Sothi805/library-app.git"
+        IMAGE_NAME        = "vethsothi/library-app"
         DOCKER_CREDENTIALS = "dockerhub_creds"
-        REMOTE_SSH_KEY = "REMOTE_SSH_KEY"
-        REMOTE_USER = "ubuntu"
-        REMOTE_HOST = "54.242.230.134"
-        REMOTE_PATH = "/home/ubuntu/deploy"
-        ENV_CREDENTIAL_ID = "library-env" // .env stored as Secret file
+        REMOTE_SSH_KEY    = "REMOTE_SSH_KEY"
+        REMOTE_USER       = "ubuntu"
+        REMOTE_HOST       = "54.242.230.134"
+        REMOTE_PATH       = "/home/ubuntu/deploy"
+        ENV_CREDENTIAL_ID = "library-env"
     }
 
     parameters {
@@ -66,13 +66,17 @@ pipeline {
             steps {
                 script {
                     def tag = params.TAG ?: "latest"
-                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh """
+                    withCredentials([usernamePassword(
+                        credentialsId: "${DOCKER_CREDENTIALS}",
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh '''#!/bin/bash
                             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                             docker push ${IMAGE_NAME}:${tag}
                             docker tag ${IMAGE_NAME}:${tag} ${IMAGE_NAME}:latest
                             docker push ${IMAGE_NAME}:latest
-                        """
+                        '''
                     }
                 }
             }
@@ -87,12 +91,10 @@ pipeline {
                     script {
                         def tag = params.TAG ?: "latest"
 
-                        sh """
+                        sh '''#!/bin/bash
+                            set -e
                             echo "⚙️ Preparing EC2 deployment folder..."
-                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} '
-                                set -e
-                                mkdir -p ${REMOTE_PATH}
-                            '
+                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} "mkdir -p ${REMOTE_PATH}"
 
                             echo "🚀 Copying configuration and .env to EC2..."
                             scp -i $SSH_KEY -o StrictHostKeyChecking=no -r docker docker-compose.yml ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/
@@ -100,7 +102,7 @@ pipeline {
                             scp -i $SSH_KEY -o StrictHostKeyChecking=no $ENV_FILE ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/.env
 
                             echo "⚙️ Deploying application on EC2..."
-                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} '
+                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} "bash -s" <<'EOF'
                                 set -e
                                 cd ${REMOTE_PATH}
 
@@ -120,30 +122,28 @@ pipeline {
                                 sudo docker compose up -d
 
                                 echo "🛠 Running Laravel setup inside container..."
-                                sudo docker exec -i library_app bash -c "
+                                sudo docker exec -i library_app bash -c '
                                     cd /var/www/html &&
-                                    echo '⏳ Waiting for database connection...' &&
-                                    until php -r 'new mysqli(getenv(\"DB_HOST\"), getenv(\"DB_USERNAME\"), getenv(\"DB_PASSWORD\"));' 2>/dev/null; do
-                                        echo '🕒 MySQL not ready yet... retrying in 5s';
+                                    echo "⏳ Waiting for database connection..." &&
+                                    until php -r "new mysqli(getenv(\"DB_HOST\"), getenv(\"DB_USERNAME\"), getenv(\"DB_PASSWORD\"));" 2>/dev/null; do
+                                        echo "🕒 MySQL not ready yet... retrying in 5s";
                                         sleep 5;
                                     done &&
-                                    echo '✅ Database is ready! Running migrations...' &&
+                                    echo "✅ Database is ready! Running migrations..." &&
                                     php artisan migrate --force &&
-                                    php artisan config:clear &&
-                                    php artisan cache:clear &&
-                                    php artisan route:clear &&
-                                    php artisan view:clear &&
+                                    php artisan optimize:clear &&
                                     php artisan config:cache &&
+                                    php artisan route:cache &&
+                                    php artisan view:cache &&
                                     chown -R www-data:www-data storage bootstrap/cache &&
                                     chmod -R 775 storage bootstrap/cache
-                                "
-                            '
-                        """
+                                '
+                            EOF
+                        '''
                     }
                 }
             }
         }
-
     }
 
     post {
