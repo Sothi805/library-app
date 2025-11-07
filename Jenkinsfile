@@ -9,6 +9,7 @@ pipeline {
         REMOTE_USER = "ubuntu"
         REMOTE_HOST = "3.85.202.5"
         REMOTE_PATH = "/home/ubuntu/deploy"
+        ENV_CREDENTIAL_ID = "library_env" // ID for .env stored as Secret text
     }
 
     parameters {
@@ -79,10 +80,16 @@ pipeline {
 
         stage('Deploy to EC2') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: "${REMOTE_SSH_KEY}", keyFileVariable: 'SSH_KEY')]) {
+                withCredentials([
+                    sshUserPrivateKey(credentialsId: "${REMOTE_SSH_KEY}", keyFileVariable: 'SSH_KEY'),
+                    string(credentialsId: "${ENV_CREDENTIAL_ID}", variable: 'ENV_CONTENT')
+                ]) {
                     script {
                         def tag = params.TAG ?: "latest"
                         sh """
+                            echo "🚀 Creating .env from Jenkins secret..."
+                            echo "$ENV_CONTENT" > .env
+
                             echo "🚀 Copying configuration and .env to EC2..."
                             scp -i $SSH_KEY -o StrictHostKeyChecking=no -r docker docker-compose.yml .env ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/
 
