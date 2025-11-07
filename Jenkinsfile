@@ -3,7 +3,7 @@ agent any
 
 ```
 environment {
-    GIT_REPO_URL = "https://github.com/Sothi805/social-media-app.git"
+    GIT_REPO_URL = "https://github.com/Sothi805/library-app.git"
     IMAGE_NAME = "vethsothi/social-media-app"
     DOCKER_CREDENTIALS = "dockerhub_creds"
     REMOTE_SSH_KEY = "REMOTE_SSH_KEY"
@@ -18,7 +18,7 @@ parameters {
         type: 'PT_TAG',
         defaultValue: '',
         description: 'Select Git tag to build',
-        useRepository: 'https://github.com/Sothi805/social-media-app.git',
+        useRepository: 'https://github.com/Sothi805/library-app.git',
         sortMode: 'DESCENDING_SMART'
     )
     gitParameter(
@@ -26,7 +26,7 @@ parameters {
         type: 'PT_BRANCH',
         defaultValue: 'main',
         description: 'Select branch if no tag',
-        useRepository: 'https://github.com/Sothi805/social-media-app.git',
+        useRepository: 'https://github.com/Sothi805/library-app.git',
         sortMode: 'ASCENDING_SMART'
     )
 }
