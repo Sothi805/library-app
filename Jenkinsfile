@@ -86,14 +86,21 @@ pipeline {
                 ]) {
                     script {
                         def tag = params.TAG ?: "latest"
+
                         sh """
+                            echo "⚙️ Preparing EC2 deployment folder..."
+                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} '
+                                set -e
+                                mkdir -p ${REMOTE_PATH}
+                            '
+
                             echo "🚀 Copying configuration and .env to EC2..."
-                            scp -i $SSH_KEY -o StrictHostKeyChecking=no -r docker docker-compose.yml $ENV_FILE ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/.env
+                            scp -i $SSH_KEY -o StrictHostKeyChecking=no -r docker docker-compose.yml ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/
+                            scp -i $SSH_KEY -o StrictHostKeyChecking=no $ENV_FILE ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/.env
 
                             echo "⚙️ Deploying application on EC2..."
                             ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} '
                                 set -e
-                                mkdir -p ${REMOTE_PATH}
                                 cd ${REMOTE_PATH}
 
                                 echo "🐳 Installing Docker & Docker Compose..."
