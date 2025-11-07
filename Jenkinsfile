@@ -7,7 +7,7 @@ pipeline {
         DOCKER_CREDENTIALS = "dockerhub_creds"
         REMOTE_SSH_KEY = "REMOTE_SSH_KEY"
         REMOTE_USER = "ubuntu"
-        REMOTE_HOST = "18.212.234.159"
+        REMOTE_HOST = "3.85.202.5"
         REMOTE_PATH = "/home/ubuntu/deploy"
     }
 
