@@ -96,8 +96,11 @@ pipeline {
                                 mkdir -p ${REMOTE_PATH}
                                 cd ${REMOTE_PATH}
 
-                                sudo apt-get update -y
-                                sudo apt-get install -y docker-compose-plugin
+                                echo "🐳 Installing Docker & Docker Compose..."
+                                if ! command -v docker >/dev/null 2>&1; then
+                                    curl -fsSL https://get.docker.com | sudo bash
+                                    sudo usermod -aG docker ubuntu
+                                fi
 
                                 echo "🧹 Cleaning old containers..."
                                 sudo docker compose down || true
