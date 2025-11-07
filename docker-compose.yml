@@ -1,8 +1,6 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: vethsothi/library-app:v1.1.4
     container_name: library_app
     volumes:
       - .:/var/www/html
@@ -21,7 +19,7 @@ services:
     image: nginx:latest
     container_name: library_nginx
     ports:
-      - "8000:80"   
+      - "8000:80"
     volumes:
       - .:/var/www/html
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
