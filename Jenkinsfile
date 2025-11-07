@@ -96,6 +96,7 @@ pipeline {
 
                             echo "🚀 Copying configuration and .env to EC2..."
                             scp -i $SSH_KEY -o StrictHostKeyChecking=no -r docker docker-compose.yml ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/
+                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} "rm -f ${REMOTE_PATH}/.env"
                             scp -i $SSH_KEY -o StrictHostKeyChecking=no $ENV_FILE ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/.env
 
                             echo "⚙️ Deploying application on EC2..."
@@ -136,6 +137,7 @@ pipeline {
                 }
             }
         }
+
     }
 
     post {
