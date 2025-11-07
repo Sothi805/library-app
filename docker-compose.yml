@@ -1,6 +1,6 @@
 services:
   app:
-    image: vethsothi/library-app:v1.1.4
+    image: vethsothi/library-app:v1.1.5
     container_name: library_app
     volumes:
       - .:/var/www/html
