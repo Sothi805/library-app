@@ -9,7 +9,7 @@ pipeline {
         REMOTE_USER = "ubuntu"
         REMOTE_HOST = "3.85.202.5"
         REMOTE_PATH = "/home/ubuntu/deploy"
-        ENV_CREDENTIAL_ID = "library_env" // ID for .env stored as Secret text
+        ENV_CREDENTIAL_ID = "library-env" // ID for .env stored as Secret text
     }
 
     parameters {
