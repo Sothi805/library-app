@@ -7,7 +7,7 @@ pipeline {
         DOCKER_CREDENTIALS = "dockerhub_creds"
         REMOTE_SSH_KEY     = "REMOTE_SSH_KEY"
         REMOTE_USER        = "ubuntu"
-        REMOTE_HOST        = "54.242.230.134"
+        REMOTE_HOST        = "3.89.129.236"
         REMOTE_PATH        = "/home/ubuntu/deploy"
         ENV_CREDENTIAL_ID  = "library-env"
     }
