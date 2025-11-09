@@ -42,6 +42,7 @@ class BookController extends Controller
             'total_copies'     => ['required', 'integer', 'min:1'],
             'source'           => ['required', Rule::in(['donated', 'sponsored', 'purchased', 'other'])],
             'cover'            => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'description'      => ['nullable', 'string', 'max:1000']
         ]);
 
         // Handle cover upload
@@ -85,7 +86,8 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
-        return view('pages.book.details', compact('book'));
+        $condition = 'As New';
+        return view('pages.book.details', compact('book', 'condition'));
     }
 
     /**

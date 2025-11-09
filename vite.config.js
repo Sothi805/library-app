@@ -15,9 +15,11 @@ export default defineConfig({
         port: 5173,
         hmr: {
             host: 'localhost',
+            protocol: 'ws'
         },
         watch: {
             usePolling: true,
+            poll: 1000
         },
     },
 })

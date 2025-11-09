@@ -11,7 +11,7 @@
     <div class="p-8 space-y-4">
         {{-- Welcome Start --}}
         <div class="mb-4">
-            <h1 class="text-3xl font-bold">Welcome, <span class="text-primary">{{ Auth::user()->name }}</span> !!</h1>
+            <h1 class="text-3xl font-bold">Welcome, <span class="text-primary">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span> !!</h1>
             <p class="text-base text-gray-600">Here's an overview of your library's activities.</p>
         </div>
         {{-- Welcome End --}}

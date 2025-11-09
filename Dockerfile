@@ -1,32 +1,38 @@
-# Use official PHP-FPM image
-FROM php:8.4-fpm
+FROM php:8.2-fpm
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Install system dependencies + PHP extensions (including mysqli)
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpng-dev libjpeg-dev libfreetype6-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install mysqli pdo pdo_mysql gd \
-    # Ensure mysqli is loaded for both FPM and CLI
-    && echo "extension=mysqli" > /usr/local/etc/php/conf.d/docker-php-ext-mysqli.ini
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    libzip-dev \
+    libpq-dev \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev
 
-# Install Composer from official composer image
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
+
+# Composer
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
-# Copy project files into container
-COPY . .
+# php.ini dev mode
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
-# Install PHP dependencies for production
-RUN composer install --no-dev --no-interaction --optimize-autoloader
+# NodeJS (for local dev)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest
 
-# Set permissions for Laravel
-RUN chmod -R 775 storage bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache
-
-# Expose PHP-FPM port
 EXPOSE 9000
 
-# Start PHP-FPM
 CMD ["php-fpm"]

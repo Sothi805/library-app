@@ -73,7 +73,7 @@
                                 <td class="px-4 py-2 text-center">
                                     {{ $book->created_at->diffForHumans() }}</td>
                                 <td class="px-4 py-2 text-center">
-                                    {{ $book->user?->first_name . ' ' . ($book->user->middle_name ? $book->user->middle_name : ' ') . ' ' . $book->user?->last_name }}
+                                    {{ trim(($book->user?->first_name ?? '') . ' ' . ($book->user?->middle_name ?? '') . ' ' . ($book->user?->last_name ?? '')) }}
                                 </td>
                                 <td class="px-4 py-2 text-center">
                                     <a class="hover:underline" href="{{ route('books.show', $book->id) }}">details</a>

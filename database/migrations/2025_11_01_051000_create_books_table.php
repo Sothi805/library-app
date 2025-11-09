@@ -14,12 +14,13 @@ return new class extends Migration
     {
         Schema::create('books', function (Blueprint $table) {
             $table->id();
-            $table->string('book_id', 6);
+            $table->string('book_id', 8);
             $table->string('title');
             $table->string('cover_path')->nullable();
             $table->string('author') -> nullable();
-            $table->integer('category_id') -> nullable;
+            $table->integer('category_id') -> nullable();
             $table->integer('published_year')->nullable();
+            $table->string('description')->nullable();
             $table->integer('total_copies');
             $table->integer('available_copies');
             $table->enum('language',['english','khmer']);

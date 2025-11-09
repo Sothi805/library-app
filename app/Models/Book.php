@@ -21,6 +21,7 @@ class Book extends Model
     'user_id',
     'added_date',
     'snapshot_added_by',
+    'added_by',
     ];
 
     public function category() {
@@ -29,7 +30,7 @@ class Book extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'added_by');
     }
 
 
