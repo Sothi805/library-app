@@ -18,6 +18,13 @@
     {{-- Google Material Symbols Outlined --}}
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 
+    {{-- x-cloak --}}
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -27,7 +34,6 @@
         @include('layouts.navigation')
 
         <div class="flex flex-col w-full">
-            <!-- Header -->
             @isset($header)
                 <header class="bg-white/10 backdrop-blur-sm shadow sticky top-0 z-40">
                     <div class="h-18 flex items-center px-8">
@@ -36,7 +42,6 @@
                 </header>
             @endisset
 
-            <!-- Page Content -->
             <main class="flex-1">
                 {{ $slot }}
             </main>
@@ -44,6 +49,12 @@
             @include('layouts.footer')
         </div>
     </div>
+
+    {{-- ✅ Teleport target for all modals --}}
+    <div id="modal-root"></div>
+
+    @stack('modals')
 </body>
+
 
 </html>

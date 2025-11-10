@@ -1,6 +1,5 @@
-import Alpine from 'alpinejs';
-
-Alpine.data('categoryDropdown', () => ({
+document.addEventListener('alpine:init', () => {
+    window.Alpine.data('categoryDropdown', () => ({
     categories: [],
     filtered: [],
     search: '',
@@ -60,6 +59,17 @@ Alpine.data('categoryDropdown', () => ({
         this.filtered = s
             ? this.categories.filter(c => c.name.toLowerCase().includes(s))
             : [...this.categories];
+    },
+
+    // Check if search matches any existing category exactly
+    get exactMatch() {
+        const s = this.search.trim().toLowerCase();
+        return this.categories.some(c => c.name.toLowerCase() === s);
+    },
+
+    // Check if we should show "Add new" option
+    get shouldShowAddNew() {
+        return this.search.trim() !== '' && !this.exactMatch;
     },
 
     selectCategory(category) {
@@ -163,3 +173,4 @@ Alpine.data('categoryDropdown', () => ({
         }
     },
 }));
+});

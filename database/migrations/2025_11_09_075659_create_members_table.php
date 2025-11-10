@@ -13,8 +13,22 @@ return new class extends Migration
     {
         Schema::create('members', function (Blueprint $table) {
             $table->id();
+            $table->string('member_code');
+            $table->string('first_name');
+            $table->string('middle_name')->nullable();
+            $table->string('last_name');
+            $table->enum('gender', ['male', 'female']);
+            $table->string('email')->unique()->nullable();
+            $table->string('phone')->unique()->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->datetime('inactive_since')->nullable();
+            $table->integer('added_by');
+            $table->string('snapshot_added_by');
+            $table->integer('updated_by')->nullable();
+            $table->string('snapshot_updated_by')->nullable();
             $table->timestamps();
         });
+
     }
 
     /**

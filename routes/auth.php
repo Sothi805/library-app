@@ -56,4 +56,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+
+    // Admin registration (only for logged-in users)
+    Route::post('admin/register', [RegisteredUserController::class, 'storeAdmin'])
+        ->name('admin.register');
 });

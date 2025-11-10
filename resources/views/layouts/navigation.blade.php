@@ -1,4 +1,4 @@
-<nav class="bg-white shadow border-r border-gray-200 w-64 min-h-screen max-h-screen sticky left-0 top-0 flex flex-col">
+<nav class="bg-white/30 backdrop-blur-xs shadow border-r border-gray-200 w-64 min-h-screen max-h-screen sticky left-0 top-0 flex flex-col">
 
     <!-- Logo -->
     <div class="flex items-center justify-center h-18 border-b border-gray-100">
@@ -15,6 +15,14 @@
 
         <x-nav-link :href="route('books.index')" :active="request()->routeIs('books.*')">
             Book Inventory
+        </x-nav-link>
+
+        <x-nav-link :href="route('borrow-return.index')" :active="request()->routeIs('borrow-return.*')">
+            Borrows & Returns
+        </x-nav-link>
+
+        <x-nav-link :href="route('members.index')" :active="request()->routeIs('members.*')">
+            Member Management
         </x-nav-link>
 
         {{-- Add more nav items here --}}

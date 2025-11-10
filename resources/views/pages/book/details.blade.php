@@ -3,15 +3,22 @@
         Book Details
     </x-slot>
     <x-slot name="header">
-        <div>
-            <h1 class="text-2xl font-bold">Book Details</h1>
+        <div class="flex justify-between items-center w-full">
+            <h1 class="text-xl font-semibold">Book Details</h1>
         </div>
     </x-slot>
 
     <div class="p-8 space-y-4">
         {{-- Welcome Start --}}
-        <div class="mb-4 flex justify-between items-center">
-            <div></div>
+        <div class="flex justify-between items-center">
+            <div class="space-x-4">
+                @if ($book->available_copies > 0)
+                    <a href="{{ route('borrow-return.borrow.form', $book) }}">
+                        <x-primary-button>Borrow Book</x-primary-button>
+                    </a>
+                @endif
+            </div>
+
             <div class="space-x-4">
                 <a href="{{ route('books.edit', $book) }}">
                     <x-primary-button>
@@ -20,7 +27,7 @@
                 </a>
                 <a href="{{ route('books.index') }}">
                     <x-secondary-button>
-                        Go Back
+                        Back to Book Inventory
                     </x-secondary-button>
                 </a>
             </div>
@@ -37,7 +44,7 @@
                         style="aspect-ratio: 1/1.414; width: 100%;">
                 @else
                     <div
-                        class="w-full aspect-[1/1.414] bg-gray-200 flex items-center justify-center text-gray-500 bg-white/10 backdrop-blur-sm shadow rounded-md">
+                        class="w-full aspect-[1/1.414] flex items-center justify-center text-gray-500 bg-white/10 backdrop-blur-sm shadow rounded-md">
                         No Cover
                     </div>
                 @endif
@@ -113,150 +120,208 @@
                 {{-- Book Description End --}}
 
                 {{-- Current Borrowers Start --}}
-                <div class="bg-white/10 backdrop-blur-sm p-4 space-y-2 shadow rounded-md">
-                    <h2 class="text-lg font-bold">Current Borrowers</h2>
-                    <div class="overflow-x-auto rounded-lg shadow-sm border border-border-dark/20 bg-background-light">
-                        <table class="w-full table-auto text-sm text-left text-text-light-primary">
-                            <thead class="bg-primary text-white uppercase text-xs">
-                                <tr>
-                                    <th scope="col" class="px-4 py-2 text-center rounded-tl-lg">Member ID</th>
-                                    <th scope="col" class="px-4 py-2 text-center">Book Condition</th>
-                                    <th scope="col" class="px-4 py-2 text-center">Borrowed</th>
-                                    <th scope="col" class="px-4 py-2 text-center">Borrows For</th>
-                                    <th scope="col" class="px-4 py-2 text-center">Borrow From</th>
-                                    <th scope="col" class="px-4 py-2 rounded-tr-lg text-center">Action
-                                    </th>
-                                </tr>
-                            </thead>
+                <div class="bg-white/10 backdrop-blur-sm p-4 space-y-4 shadow rounded-md">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-bold">Current Borrowers</h2>
 
-                            <tbody class="divide-y divide-border-dark/10">
-
-                                <tr class="hover:bg-tertiary/10 transition-colors">
-                                    <td class="px-4 py-2 text-center">M00001</td>
-
-                                    <td class="px-4 py-2 text-center">
-                                        <span
-                                            class="text-xs py-1 px-2 rounded-full font-bold
-                                                    {{ $condition === 'As New'
-                                                        ? 'bg-purple-600 text-purple-100'
-                                                        : ($condition === 'Fine'
-                                                            ? 'bg-blue-600 text-blue-100'
-                                                            : ($condition === 'Very Good'
-                                                                ? 'bg-green-600 text-green-100'
-                                                                : ($condition === 'Good'
-                                                                    ? 'bg-orange-600 text-orange-100'
-                                                                    : ($condition === 'Fair'
-                                                                        ? 'bg-yellow-600 text-yellow-100'
-                                                                        : 'bg-red-600 text-red-100')))) }}">
-                                            {{ $condition }}
-                                        </span>
-
-                                    </td>
-
-                                    <td class="px-4 py-2 text-center">
-                                        {{ $book->created_at->diffForHumans() }}</td>
-                                    <td class="px-4 py-2 text-center">14 days</td>
-                                    <td class="px-4 py-2 text-center">
-                                        {{ trim(($book->user?->first_name ?? '') . ' ' . ($book->user?->middle_name ?? '') . ' ' . ($book->user?->last_name ?? '')) }}
-                                    </td>
-                                    <td class="px-4 py-2 text-center">
-                                        <a class="hover:underline"
-                                            href="{{ route('books.show', $book->id) }}">details</a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        {{-- Per Page Selector --}}
+                        @if($currentBorrowers->total() > 0)
+                        <form method="GET" action="{{ route('books.show', $book) }}" class="flex items-center space-x-2">
+                            <label for="per_page" class="text-sm text-gray-600">Show:</label>
+                            <select id="per_page" name="per_page"
+                                class="px-2 py-1 text-sm border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring-primary"
+                                onchange="this.form.submit()">
+                                <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                                <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                                <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
+                            </select>
+                        </form>
+                        @endif
                     </div>
+
+                    @if ($currentBorrowers->total() > 0)
+                        <div
+                            class="overflow-x-auto rounded-lg shadow-sm border border-border-dark/20 bg-background-light">
+                            <table class="w-full table-auto text-sm text-left text-text-light-primary">
+                                <thead class="bg-primary text-white uppercase text-xs">
+                                    <tr>
+                                        <th scope="col" class="px-4 py-2 text-center rounded-tl-lg">Member ID</th>
+                                        <th scope="col" class="px-4 py-2 text-center">Borrowed Date</th>
+                                        <th scope="col" class="px-4 py-2 text-center">Due Date</th>
+                                        <th scope="col" class="px-4 py-2 text-center">Status</th>
+                                        <th scope="col" class="px-4 py-2 rounded-tr-lg text-center">Action</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody class="divide-y divide-border-dark/10">
+                                    @foreach($currentBorrowers as $borrow)
+                                    <tr class="hover:bg-tertiary/10 transition-colors">
+                                        <td class="px-4 py-2 text-center">{{ $borrow->member->member_code }}
+                                        </td>
+                                        <td class="px-4 py-2 text-center">
+                                            {{ $borrow->borrowed_date->format('M d, Y') }}</td>
+                                        <td class="px-4 py-2 text-center">
+                                            {{ $borrow->due_date->format('M d, Y') }}</td>
+                                        <td class="px-4 py-2 text-center">
+                                            @if ($borrow->due_date->isPast())
+                                                <span
+                                                    class="text-xs py-1 px-2 rounded-full font-bold bg-red-600 text-red-100">
+                                                    Overdue ({{ $borrow->due_date->diffForHumans() }})
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="text-xs py-1 px-2 rounded-full font-bold bg-green-600 text-green-100">
+                                                    Active
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-2 text-center">
+                                            <a href="{{ route('borrow-return.return.form', ['book' => $book, 'borrow' => $borrow]) }}" class="text-primary hover:underline">
+                                                Return Book
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {{-- Pagination --}}
+                        <div class="mt-4">
+                            {{ $currentBorrowers->links() }}
+                        </div>
+                    @else
+                        <p class="text-gray-500 italic">No active borrowers</p>
+                    @endif
                 </div>
                 {{-- Current Borrowers End --}}
 
                 {{-- Borrow History Start --}}
-                <div class="bg-white/10 backdrop-blur-sm p-4 space-y-2 shadow rounded-md">
-                    <h2 class="text-lg font-bold">Borrow History</h2>
+                <div class="bg-white/10 backdrop-blur-sm p-4 space-y-4 shadow rounded-md">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-bold">Borrow History</h2>
+
+                        {{-- Per Page Selector --}}
+                        <form method="GET" action="{{ route('books.show', $book) }}" class="flex items-center space-x-2">
+                            <label for="per_page" class="text-sm text-gray-600">Show:</label>
+                            <select id="per_page" name="per_page"
+                                class="px-2 py-1 text-sm border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring-primary"
+                                onchange="this.form.submit()">
+                                <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                                <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                                <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
+                            </select>
+                        </form>
+                    </div>
+
                     <div class="overflow-x-auto rounded-lg shadow-sm border border-border-dark/20 bg-background-light">
                         <table class="w-full table-auto text-sm text-left text-text-light-primary">
                             <thead class="bg-primary text-white uppercase text-xs">
                                 <tr>
                                     <th scope="col" class="px-4 py-2 text-center rounded-tl-lg">Member ID</th>
-                                    <th scope="col" class="px-4 py-2 text-center">Borrowed Condition</th>
-                                    <th scope="col" class="px-4 py-2 text-center">Returned Condition</th>
-                                    <th scope="col" class="px-4 py-2 text-center">Set to Return Date</th>
-                                    <th scope="col" class="px-4 py-2 text-center">Actual Return Date</th>
+                                    <th scope="col" class="px-4 py-2 text-center">Borrowed Date</th>
+                                    <th scope="col" class="px-4 py-2 text-center">Due Date</th>
+                                    <th scope="col" class="px-4 py-2 text-center">Returned Date</th>
                                     <th scope="col" class="px-4 py-2 text-center">Status</th>
-                                    <th scope="col" class="px-4 py-2 text-center">Received By</th>
-                                    <th scope="col" class="px-4 py-2 rounded-tr-lg text-center">Action
-                                    </th>
+                                    <th scope="col" class="px-4 py-2 rounded-tr-lg text-center">Action</th>
                                 </tr>
                             </thead>
 
                             <tbody class="divide-y divide-border-dark/10">
-
-                                <tr class="hover:bg-tertiary/10 transition-colors">
-                                    <td class="px-4 py-2 text-center">M00002</td>
-
-                                    <td class="px-4 py-2 text-center">
-                                        <span
-                                            class="text-xs py-1 px-2 rounded-full font-bold
-                                                    {{ $condition === 'As New'
-                                                        ? 'bg-purple-600 text-purple-100'
-                                                        : ($condition === 'Fine'
-                                                            ? 'bg-blue-600 text-blue-100'
-                                                            : ($condition === 'Very Good'
-                                                                ? 'bg-green-600 text-green-100'
-                                                                : ($condition === 'Good'
-                                                                    ? 'bg-orange-600 text-orange-100'
-                                                                    : ($condition === 'Fair'
-                                                                        ? 'bg-yellow-600 text-yellow-100'
-                                                                        : 'bg-red-600 text-red-100')))) }}">
-                                            {{ $condition }}
-                                        </span>
-                                    </td>
-
-                                    <td class="px-4 py-2 text-center">
-                                        <span
-                                            class="text-xs py-1 px-2 rounded-full font-bold
-                                                    {{ $condition === 'As New'
-                                                        ? 'bg-purple-600 text-purple-100'
-                                                        : ($condition === 'Fine'
-                                                            ? 'bg-blue-600 text-blue-100'
-                                                            : ($condition === 'Very Good'
-                                                                ? 'bg-green-600 text-green-100'
-                                                                : ($condition === 'Good'
-                                                                    ? 'bg-orange-600 text-orange-100'
-                                                                    : ($condition === 'Fair'
-                                                                        ? 'bg-yellow-600 text-yellow-100'
-                                                                        : 'bg-red-600 text-red-100')))) }}">
-                                            {{ $condition }}
-                                        </span>
-                                    </td>
-
-                                    <td class="px-4 py-2 text-center">
-                                        10/09/25
-                                    </td>
-                                    <td class="px-4 py-2 text-center">
-                                        13/09/25
-                                    </td>
-                                    <td class="px-4 py-2 text-center">
-                                        <span class="text-xs py-1 px-2 rounded-full font-bold bg-red-600 text-red-100">
-                                            Late 3 days
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-2 text-center">
-                                        {{ trim(($book->user?->first_name ?? '') . ' ' . ($book->user?->middle_name ?? '') . ' ' . ($book->user?->last_name ?? '')) }}
-                                    </td>
-                                    <td class="px-4 py-2 text-center">
-                                        <a class="hover:underline"
-                                            href="{{ route('books.show', $book->id) }}">details</a>
-                                    </td>
-                                </tr>
+                                @forelse($borrowHistory as $borrow)
+                                    <tr class="hover:bg-tertiary/10 transition-colors">
+                                        <td class="px-4 py-2 text-center">{{ $borrow->member->member_code }}</td>
+                                        <td class="px-4 py-2 text-center">
+                                            {{ $borrow->borrowed_date->format('M d, Y') }}</td>
+                                        <td class="px-4 py-2 text-center">{{ $borrow->due_date->format('M d, Y') }}
+                                        </td>
+                                        <td class="px-4 py-2 text-center">
+                                            {{ $borrow->returned_date ? $borrow->returned_date->format('M d, Y') : '-' }}
+                                        </td>
+                                        <td class="px-4 py-2 text-center">
+                                            @if ($borrow->status === 'returned')
+                                                @if ($borrow->returned_date->gt($borrow->due_date))
+                                                    <span
+                                                        class="text-xs py-1 px-2 rounded-full font-bold bg-red-600 text-red-100">
+                                                        Returned Late
+                                                        ({{ $borrow->returned_date->diffInDays($borrow->due_date) }}
+                                                        days)
+                                                    </span>
+                                                @else
+                                                    <span
+                                                        class="text-xs py-1 px-2 rounded-full font-bold bg-green-600 text-green-100">
+                                                        Returned On Time
+                                                    </span>
+                                                @endif
+                                            @else
+                                                @if ($borrow->due_date->isPast())
+                                                    <span
+                                                        class="text-xs py-1 px-2 rounded-full font-bold bg-red-600 text-red-100">
+                                                        Overdue ({{ $borrow->due_date->diffForHumans() }})
+                                                    </span>
+                                                @else
+                                                    <span
+                                                        class="text-xs py-1 px-2 rounded-full font-bold bg-yellow-600 text-yellow-100">
+                                                        Borrowed
+                                                    </span>
+                                                @endif
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-2 text-center">
+                                            @if ($borrow->status === 'returned')
+                                                <a class="text-primary hover:underline text-sm"
+                                                    href="{{ route('borrow-return.return.form', ['book' => $book, 'borrow' => $borrow]) }}">
+                                                    Edit Return
+                                                </a>
+                                            @else
+                                                <a class="hover:underline text-sm"
+                                                    href="{{ route('members.show', $borrow->member->id) }}">
+                                                    View Member
+                                                </a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="px-4 py-2 text-center text-gray-500 italic">
+                                            No borrow history available
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
+
+                    {{-- Pagination --}}
+                    <div class="mt-4">
+                        {{ $borrowHistory->links() }}
+                    </div>
                 </div>
                 {{-- Borrow History End --}}
+
+                {{-- Delete Book Section --}}
+                <div class="mt-8 border-t pt-8">
+                    <div x-data="{ showDeleteBookModal: false }" class="flex items-center justify-between">
+
+                        <div>
+                            <h2 class="text-lg font-bold text-red-600">Danger Zone</h2>
+                            <p class="text-sm text-gray-500">This action cannot be undone.</p>
+                        </div>
+
+                        <x-danger-button @click="showDeleteBookModal = true">
+                            Delete Book
+                        </x-danger-button>
+
+                        {{-- Modal partial --}}
+                        @include('pages.book.partials.delete-modal', ['book' => $book])
+
+                    </div>
+                </div>
 
 
             </div>
         </div>
 
+
+    </div>
 </x-app-layout>

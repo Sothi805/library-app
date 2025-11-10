@@ -1,6 +1,5 @@
-import Alpine from 'alpinejs';
-
-Alpine.data('imageUploader', () => ({
+document.addEventListener('alpine:init', () => {
+    window.Alpine.data('imageUploader', () => ({
     preview: null,
     dragging: false,
 
@@ -26,4 +25,5 @@ Alpine.data('imageUploader', () => ({
         }
     },
 }));
+});
 

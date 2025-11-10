@@ -17,7 +17,7 @@
             {{-- Section Header --}}
             <div class="flex justify-between items-center mb-2">
                 <h1 class="font-bold text-base">Book Information</h1>
-                <a href="{{ route('books.index') }}">
+                <a href="{{ url()->previous() }}">
                     <x-secondary-button>
                         Go Back
                     </x-secondary-button>
@@ -187,14 +187,14 @@
                             </template>
 
                             {{-- No Categories --}}
-                            <div x-show="!loading && !filtered.length && search.trim() === ''"
+                            <div x-show="!loading && filtered.length === 0 && search.trim() === ''"
                                 class="px-3 py-2 text-gray-500 text-sm italic">
                                 No categories found.
                             </div>
 
-                            {{-- Add New --}}
-                            <div x-show="!loading && !filtered.length && search.trim() !== ''" @click="addCategory"
-                                class="px-3 py-2 cursor-pointer bg-green-50 text-green-700 font-semibold hover:bg-green-100 transition">
+                            {{-- Always show "Add New" option if input doesn't exactly match any existing category --}}
+                            <div x-show="!loading && shouldShowAddNew" @click="addCategory"
+                                class="px-3 py-2 cursor-pointer bg-green-50 text-green-700 font-semibold hover:bg-green-100 transition border-t border-gray-200">
                                 + Add "<span x-text="search"></span>"
                             </div>
                         </div>
